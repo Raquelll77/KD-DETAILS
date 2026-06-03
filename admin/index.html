@@ -1,0 +1,571 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin - KD Details</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #0a0a0a;
+            color: #fff;
+            min-height: 100vh;
+        }
+
+        /* Login */
+        .login-screen {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .login-card {
+            background: #1a1a1a;
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 20px;
+            padding: 48px 40px;
+            width: 100%;
+            max-width: 420px;
+            text-align: center;
+        }
+        .logo { font-family: 'Playfair Display', serif; font-size: 2.5rem; margin-bottom: 8px; }
+        .logo-k { color: #c9a96e; }
+        .logo-d { color: #fff; }
+        .login-card h2 {
+            color: rgba(255,255,255,0.5);
+            font-size: 0.85rem;
+            font-weight: 400;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            margin-bottom: 32px;
+        }
+        .login-card p.setup-note {
+            color: rgba(255,255,255,0.4);
+            font-size: 0.8rem;
+            margin-bottom: 24px;
+            line-height: 1.5;
+            text-align: left;
+            background: rgba(201,169,110,0.08);
+            padding: 12px 16px;
+            border-radius: 10px;
+            border: 1px solid rgba(201,169,110,0.15);
+        }
+        .setup-note a {
+            color: #c9a96e;
+            text-decoration: underline;
+        }
+
+        /* Admin Nav */
+        .admin-nav {
+            background: #1a1a1a;
+            border-bottom: 1px solid rgba(255,255,255,0.08);
+            padding: 16px 32px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        .admin-nav .logo { font-size: 1.5rem; }
+        .admin-nav .admin-label {
+            color: rgba(255,255,255,0.4);
+            font-size: 0.8rem;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            margin-left: 12px;
+        }
+        .nav-links { display: flex; gap: 12px; align-items: center; }
+        .nav-links a {
+            color: rgba(255,255,255,0.5);
+            text-decoration: none;
+            font-size: 0.85rem;
+            padding: 8px 20px;
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 50px;
+            transition: 0.3s;
+            cursor: pointer;
+        }
+        .nav-links a:hover { border-color: #c9a96e; color: #c9a96e; }
+        .nav-links .site-link { border-color: rgba(201,169,110,0.3); color: #c9a96e; }
+
+        /* Common */
+        .container { max-width: 1100px; margin: 0 auto; padding: 40px 24px; }
+        .form-group { margin-bottom: 16px; }
+        .form-group label {
+            display: block; font-size: 0.8rem; color: rgba(255,255,255,0.5);
+            margin-bottom: 6px; text-transform: uppercase; letter-spacing: 1px;
+        }
+        .form-group input, .form-group select {
+            width: 100%; padding: 12px 16px;
+            border: 1px solid rgba(255,255,255,0.1); border-radius: 10px;
+            background: rgba(255,255,255,0.05); color: #fff;
+            font-family: 'Inter', sans-serif; font-size: 0.9rem;
+            outline: none; transition: 0.3s;
+        }
+        .form-group input:focus, .form-group select:focus { border-color: #c9a96e; }
+        .form-group select option { background: #1a1a1a; color: #fff; }
+        .form-group input[type="file"] { padding: 10px; }
+        .form-group input[type="file"]::file-selector-button {
+            background: #6f4e37; color: #fff; border: none;
+            padding: 8px 16px; border-radius: 8px; cursor: pointer;
+            font-family: 'Inter', sans-serif; font-size: 0.85rem;
+            margin-right: 12px; transition: 0.3s;
+        }
+        .form-group input[type="file"]::file-selector-button:hover { background: #3c2415; }
+        .btn {
+            padding: 14px 32px; background: #6f4e37; color: #fff;
+            border: none; border-radius: 50px; font-family: 'Inter', sans-serif;
+            font-size: 0.95rem; font-weight: 500; cursor: pointer; transition: 0.3s;
+            display: inline-flex; align-items: center; gap: 8px;
+        }
+        .btn:hover { background: #3c2415; transform: translateY(-2px); }
+        .btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+        .btn-full { width: 100%; justify-content: center; }
+        .btn-delete {
+            background: rgba(220,38,38,0.1); color: #ef4444;
+            border: 1px solid rgba(220,38,38,0.2); padding: 8px 20px;
+            border-radius: 50px; font-family: 'Inter', sans-serif;
+            font-size: 0.8rem; cursor: pointer; transition: 0.3s; width: 100%;
+        }
+        .btn-delete:hover { background: rgba(220,38,38,0.2); }
+
+        .message {
+            padding: 14px 20px; border-radius: 12px; margin-bottom: 24px;
+            font-size: 0.9rem; display: none;
+        }
+        .message.success { display: block; background: rgba(34,197,94,0.1); color: #22c55e; border: 1px solid rgba(34,197,94,0.2); }
+        .message.error { display: block; background: rgba(220,38,38,0.1); color: #ef4444; border: 1px solid rgba(220,38,38,0.2); }
+        .message.info { display: block; background: rgba(59,130,246,0.1); color: #3b82f6; border: 1px solid rgba(59,130,246,0.2); }
+
+        /* Upload */
+        .upload-section {
+            background: #1a1a1a; border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 20px; padding: 36px; margin-bottom: 40px;
+        }
+        .upload-section h3 { font-family: 'Playfair Display', serif; font-size: 1.3rem; margin-bottom: 24px; }
+        .upload-form { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+        .upload-form .full-width { grid-column: 1 / -1; }
+
+        .preview-container { margin-top: 12px; display: none; }
+        .preview-container img { max-width: 100%; max-height: 200px; border-radius: 10px; object-fit: cover; }
+
+        /* Gallery */
+        .gallery-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 24px; }
+        .gallery-header h3 { font-family: 'Playfair Display', serif; font-size: 1.3rem; }
+        .photo-count {
+            background: rgba(201,169,110,0.15); color: #c9a96e;
+            padding: 6px 16px; border-radius: 50px; font-size: 0.8rem; font-weight: 600;
+        }
+        .gallery-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 24px; }
+        .gallery-card {
+            background: #1a1a1a; border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 16px; overflow: hidden; transition: 0.3s;
+        }
+        .gallery-card:hover { border-color: rgba(255,255,255,0.15); }
+        .gallery-card img { width: 100%; height: 200px; object-fit: cover; }
+        .gallery-card-info { padding: 20px; }
+        .gallery-card-info h4 { font-size: 1rem; font-family: 'Playfair Display', serif; margin-bottom: 4px; }
+        .gallery-card-info p { color: rgba(255,255,255,0.4); font-size: 0.8rem; margin-bottom: 16px; }
+        .gallery-card-info .badge {
+            display: inline-block; background: rgba(201,169,110,0.15); color: #c9a96e;
+            padding: 3px 10px; border-radius: 50px; font-size: 0.7rem;
+            font-weight: 600; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 12px;
+        }
+        .empty-state { text-align: center; padding: 60px 20px; color: rgba(255,255,255,0.3); }
+        .empty-state p { font-size: 1rem; margin-bottom: 8px; }
+
+        .page-title { font-family: 'Playfair Display', serif; font-size: 2rem; margin-bottom: 8px; }
+        .page-subtitle { color: rgba(255,255,255,0.4); font-size: 0.9rem; margin-bottom: 32px; }
+
+        .spinner { display: inline-block; width: 18px; height: 18px; border: 2px solid rgba(255,255,255,0.3); border-top-color: #fff; border-radius: 50%; animation: spin 0.6s linear infinite; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        .hidden { display: none !important; }
+
+        @media (max-width: 768px) {
+            .upload-form { grid-template-columns: 1fr; }
+            .admin-nav { padding: 12px 16px; }
+            .container { padding: 24px 16px; }
+            .upload-section { padding: 24px; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- LOGIN SCREEN -->
+<div id="loginScreen" class="login-screen">
+    <div class="login-card">
+        <div class="logo"><span class="logo-k">K</span><span class="logo-d">D</span></div>
+        <h2>Panel de Administraci&oacute;n</h2>
+        <p class="setup-note">
+            Para usar este panel necesitas un <strong>GitHub Personal Access Token</strong> con permiso <code>repo</code>.<br><br>
+            <a href="https://github.com/settings/tokens/new?scopes=repo&description=KD+Details+Admin" target="_blank" rel="noopener">Crear token aqu&iacute;</a> &mdash; selecciona el permiso "repo" y copia el token generado.
+        </p>
+        <div class="form-group">
+            <input type="text" id="repoInput" placeholder="usuario/repositorio (ej: miuser/kd-details)">
+        </div>
+        <div class="form-group">
+            <input type="password" id="tokenInput" placeholder="GitHub Token (ghp_...)">
+        </div>
+        <div class="form-group">
+            <label style="display:flex;align-items:center;gap:8px;cursor:pointer;text-transform:none;letter-spacing:0;">
+                <input type="checkbox" id="rememberToken" style="width:auto;">
+                Recordar en este navegador
+            </label>
+        </div>
+        <div id="loginError" class="message error" style="display:none;"></div>
+        <button class="btn btn-full" onclick="login()">Conectar</button>
+    </div>
+</div>
+
+<!-- ADMIN PANEL -->
+<div id="adminPanel" class="hidden">
+    <nav class="admin-nav">
+        <div style="display:flex;align-items:center;">
+            <div class="logo"><span class="logo-k">K</span><span class="logo-d">D</span></div>
+            <span class="admin-label">Admin</span>
+        </div>
+        <div class="nav-links">
+            <a class="site-link" id="siteLink" href="../" target="_blank">Ver Sitio</a>
+            <a onclick="logout()">Cerrar Sesi&oacute;n</a>
+        </div>
+    </nav>
+
+    <div class="container">
+        <h1 class="page-title">Galer&iacute;a de Fotos</h1>
+        <p class="page-subtitle">Sube y administra las fotos. Los cambios se publican autom&aacute;ticamente en tu sitio.</p>
+
+        <div id="statusMessage" class="message"></div>
+
+        <div class="upload-section">
+            <h3>Subir nueva foto</h3>
+            <div class="upload-form">
+                <div class="form-group">
+                    <label>T&iacute;tulo</label>
+                    <input type="text" id="photoTitle" placeholder="Ej: Interior SUV Honda">
+                </div>
+                <div class="form-group">
+                    <label>Categor&iacute;a</label>
+                    <select id="photoCategory">
+                        <option value="interior">Shampuseado Interior</option>
+                        <option value="exterior">Lavado Exterior</option>
+                        <option value="completo">Detailing Completo</option>
+                        <option value="antes-despues">Antes / Despu&eacute;s</option>
+                        <option value="motor">Motor</option>
+                    </select>
+                </div>
+                <div class="form-group full-width">
+                    <label>Imagen (JPG, PNG o WebP - m&aacute;x 5MB)</label>
+                    <input type="file" id="photoFile" accept="image/jpeg,image/png,image/webp" onchange="previewImage(this)">
+                    <div class="preview-container" id="preview">
+                        <img id="previewImg" src="" alt="Preview">
+                    </div>
+                </div>
+                <div class="full-width">
+                    <button class="btn" id="uploadBtn" onclick="uploadPhoto()">Subir Foto</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="gallery-header">
+            <h3>Fotos subidas</h3>
+            <span class="photo-count" id="photoCount">0 fotos</span>
+        </div>
+
+        <div id="galleryGrid" class="gallery-grid"></div>
+        <div id="emptyState" class="empty-state">
+            <p>No hay fotos a&uacute;n</p>
+            <small>Sube tu primera foto usando el formulario de arriba.</small>
+        </div>
+    </div>
+</div>
+
+<script>
+const CONFIG = {
+    branch: 'main',
+    galleryJsonPath: 'data/gallery.json',
+    uploadsPath: 'uploads/gallery/'
+};
+
+let state = { token: '', repo: '', gallery: [], galleryFileSha: null };
+
+// --- Auth ---
+function login() {
+    const repo = document.getElementById('repoInput').value.trim();
+    const token = document.getElementById('tokenInput').value.trim();
+    const remember = document.getElementById('rememberToken').checked;
+
+    if (!repo || !token) {
+        showLoginError('Completa ambos campos');
+        return;
+    }
+
+    state.repo = repo;
+    state.token = token;
+
+    ghApi(`repos/${repo}`).then(r => {
+        if (!r.ok) throw new Error('Repo no encontrado o token inválido');
+        return r.json();
+    }).then(() => {
+        if (remember) {
+            localStorage.setItem('kd_repo', repo);
+            localStorage.setItem('kd_token', token);
+        }
+        document.getElementById('loginScreen').classList.add('hidden');
+        document.getElementById('adminPanel').classList.remove('hidden');
+        loadGallery();
+    }).catch(err => {
+        showLoginError(err.message);
+    });
+}
+
+function logout() {
+    localStorage.removeItem('kd_repo');
+    localStorage.removeItem('kd_token');
+    state = { token: '', repo: '', gallery: [], galleryFileSha: null };
+    document.getElementById('loginScreen').classList.remove('hidden');
+    document.getElementById('adminPanel').classList.add('hidden');
+    document.getElementById('repoInput').value = '';
+    document.getElementById('tokenInput').value = '';
+}
+
+function autoLogin() {
+    const repo = localStorage.getItem('kd_repo');
+    const token = localStorage.getItem('kd_token');
+    if (repo && token) {
+        document.getElementById('repoInput').value = repo;
+        document.getElementById('tokenInput').value = token;
+        login();
+    }
+}
+
+function showLoginError(msg) {
+    const el = document.getElementById('loginError');
+    el.textContent = msg;
+    el.style.display = 'block';
+}
+
+// --- GitHub API ---
+function ghApi(path, options) {
+    return fetch(`https://api.github.com/${path}`, {
+        ...options,
+        headers: {
+            'Authorization': `token ${state.token}`,
+            'Accept': 'application/vnd.github.v3+json',
+            ...(options && options.headers || {})
+        }
+    });
+}
+
+async function getFileContent(path) {
+    const r = await ghApi(`repos/${state.repo}/contents/${path}?ref=${CONFIG.branch}`);
+    if (r.status === 404) return null;
+    if (!r.ok) throw new Error('Error al leer archivo');
+    return r.json();
+}
+
+async function putFile(path, content, message, sha) {
+    const body = { message, content, branch: CONFIG.branch };
+    if (sha) body.sha = sha;
+
+    const r = await ghApi(`repos/${state.repo}/contents/${path}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body)
+    });
+
+    if (!r.ok) {
+        const err = await r.json();
+        throw new Error(err.message || 'Error al subir archivo');
+    }
+    return r.json();
+}
+
+async function deleteFile(path, sha, message) {
+    const r = await ghApi(`repos/${state.repo}/contents/${path}`, {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ message, sha, branch: CONFIG.branch })
+    });
+    if (!r.ok) throw new Error('Error al eliminar archivo');
+    return r.json();
+}
+
+// --- Gallery ---
+async function loadGallery() {
+    try {
+        const file = await getFileContent(CONFIG.galleryJsonPath);
+        if (file) {
+            state.galleryFileSha = file.sha;
+            state.gallery = JSON.parse(atob(file.content));
+        } else {
+            state.gallery = [];
+            state.galleryFileSha = null;
+        }
+    } catch (e) {
+        state.gallery = [];
+    }
+    renderGallery();
+}
+
+function renderGallery() {
+    const grid = document.getElementById('galleryGrid');
+    const empty = document.getElementById('emptyState');
+    const count = document.getElementById('photoCount');
+
+    count.textContent = state.gallery.length + ' fotos';
+
+    if (state.gallery.length === 0) {
+        grid.innerHTML = '';
+        empty.style.display = 'block';
+        return;
+    }
+
+    empty.style.display = 'none';
+    const baseUrl = `https://raw.githubusercontent.com/${state.repo}/${CONFIG.branch}/`;
+
+    grid.innerHTML = [...state.gallery].reverse().map(photo => `
+        <div class="gallery-card">
+            <img src="${baseUrl}${CONFIG.uploadsPath}${photo.filename}" alt="${photo.title}" loading="lazy">
+            <div class="gallery-card-info">
+                <span class="badge">${photo.category}</span>
+                <h4>${photo.title}</h4>
+                <p>Subida: ${photo.date}</p>
+                <button class="btn-delete" onclick="deletePhoto('${photo.id}')">Eliminar</button>
+            </div>
+        </div>
+    `).join('');
+}
+
+// --- Upload ---
+function previewImage(input) {
+    const preview = document.getElementById('preview');
+    const previewImg = document.getElementById('previewImg');
+    if (input.files && input.files[0]) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            previewImg.src = e.target.result;
+            preview.style.display = 'block';
+        };
+        reader.readAsDataURL(input.files[0]);
+    }
+}
+
+async function uploadPhoto() {
+    const title = document.getElementById('photoTitle').value.trim();
+    const category = document.getElementById('photoCategory').value;
+    const fileInput = document.getElementById('photoFile');
+    const btn = document.getElementById('uploadBtn');
+
+    if (!title || !fileInput.files[0]) {
+        showMessage('Completa el título y selecciona una imagen', 'error');
+        return;
+    }
+
+    const file = fileInput.files[0];
+    if (file.size > 5 * 1024 * 1024) {
+        showMessage('La imagen es muy grande (máximo 5MB)', 'error');
+        return;
+    }
+
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner"></span> Subiendo...';
+
+    try {
+        const base64 = await fileToBase64(file);
+        const ext = file.name.split('.').pop().toLowerCase();
+        const id = 'kd_' + Date.now();
+        const filename = id + '.' + ext;
+
+        showMessage('Subiendo imagen al repositorio...', 'info');
+        await putFile(
+            CONFIG.uploadsPath + filename,
+            base64,
+            `Agregar foto: ${title}`
+        );
+
+        const now = new Date();
+        const date = now.toLocaleDateString('es-HN') + ' ' + now.toLocaleTimeString('es-HN', { hour: '2-digit', minute: '2-digit' });
+
+        state.gallery.push({ id, filename, title, category, date });
+
+        showMessage('Actualizando galería...', 'info');
+        const result = await putFile(
+            CONFIG.galleryJsonPath,
+            btoa(unescape(encodeURIComponent(JSON.stringify(state.gallery, null, 4)))),
+            `Actualizar galería: ${title}`,
+            state.galleryFileSha
+        );
+        state.galleryFileSha = result.content.sha;
+
+        document.getElementById('photoTitle').value = '';
+        fileInput.value = '';
+        document.getElementById('preview').style.display = 'none';
+
+        showMessage('Foto subida exitosamente. Netlify publicará los cambios en unos segundos.', 'success');
+        renderGallery();
+    } catch (err) {
+        showMessage('Error: ' + err.message, 'error');
+    } finally {
+        btn.disabled = false;
+        btn.innerHTML = 'Subir Foto';
+    }
+}
+
+async function deletePhoto(id) {
+    if (!confirm('¿Eliminar esta foto?')) return;
+
+    const photo = state.gallery.find(p => p.id === id);
+    if (!photo) return;
+
+    try {
+        showMessage('Eliminando imagen...', 'info');
+        const fileData = await getFileContent(CONFIG.uploadsPath + photo.filename);
+        if (fileData) {
+            await deleteFile(CONFIG.uploadsPath + photo.filename, fileData.sha, `Eliminar foto: ${photo.title}`);
+        }
+
+        state.gallery = state.gallery.filter(p => p.id !== id);
+
+        const result = await putFile(
+            CONFIG.galleryJsonPath,
+            btoa(unescape(encodeURIComponent(JSON.stringify(state.gallery, null, 4)))),
+            `Eliminar de galería: ${photo.title}`,
+            state.galleryFileSha
+        );
+        state.galleryFileSha = result.content.sha;
+
+        showMessage('Foto eliminada.', 'success');
+        renderGallery();
+    } catch (err) {
+        showMessage('Error: ' + err.message, 'error');
+        await loadGallery();
+    }
+}
+
+// --- Utils ---
+function fileToBase64(file) {
+    return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result.split(',')[1]);
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+    });
+}
+
+function showMessage(text, type) {
+    const el = document.getElementById('statusMessage');
+    el.textContent = text;
+    el.className = 'message ' + type;
+    if (type === 'success') setTimeout(() => { el.className = 'message'; }, 5000);
+}
+
+// Auto-login on page load
+autoLogin();
+</script>
+</body>
+</html>

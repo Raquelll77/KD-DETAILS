@@ -1,0 +1,8 @@
+# PHP admin files (not needed on Netlify)
+admin/*.php
+
+# Local dev
+.claude/
+node_modules/
+.DS_Store
+Thumbs.db
